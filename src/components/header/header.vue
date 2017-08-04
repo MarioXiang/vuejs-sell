@@ -223,7 +223,7 @@
       background: rgba(7, 17, 27, 0.8)
       &.fade-enter-active, &.fade-leave-active
         opacity: 1
-      &.fade-enter, &.fade-leave-to
+      &.fade-enter, &.fade-leave-active
         transform: scale(3,3)
         opacity: 0
       .detail-wrapper

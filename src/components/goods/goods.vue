@@ -3,8 +3,8 @@
     <div class="menu-wrapper" ref="menuWrapper">
       <ul>
         <li v-for="(item, index) in goods" class="menu-item" :class="{'current':currentIndex===index}" key="index"
-        @click="selectMenu(index, $event)" ref="menuList">
-          <span class="text border-lpx">
+            @click="selectMenu(index, $event)" ref="menuList">
+          <span class="text border-1px">
             <span v-show="item.type>0" class="icon" :class="classMap[item.type]"></span>{{item.name}}
           </span>
         </li>
@@ -27,7 +27,11 @@
                   <span>好评率{{food.rating}}%</span>
                 </div>
                 <div class="price">
-                  <span class="now">¥{{food.price}}</span><span class="old" v-show="food.oldPrice">¥{{food.oldPrice}}</span>
+                  <span class="now">¥{{food.price}}</span><span class="old"
+                                                                v-show="food.oldPrice">¥{{food.oldPrice}}</span>
+                </div>
+                <div class="cartcontrol-wrapper">
+                  <cartcontrol @add="_drop" :food="food"></cartcontrol>
                 </div>
               </div>
             </li>
@@ -35,13 +39,15 @@
         </li>
       </ul>
     </div>
-    <shopcart></shopcart>
+    <shopcart ref="shopcart" :select-foods="selectFoods" :delivery-price="seller.deliveryPrice"
+              :min-price="seller.minPrice"></shopcart>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
   import BScroll from 'better-scroll';
   import shopcart from '../shopcart/shopcart.vue';
+  import cartcontrol from '../cartcontrol/cartcontrol.vue';
 
   const ERR_OK = 0;
 
@@ -69,6 +75,17 @@
           }
         }
         return 0;
+      },
+      selectFoods() {
+        let foods = [];
+        this.goods.forEach((good) => {
+          good.foods.forEach((food) => {
+            if (food.count) {
+              foods.push(food);
+            }
+          });
+        });
+        return foods;
       }
     },
     created() {
@@ -93,12 +110,19 @@
         let el = foodList[index];
         this.foodsScroll.scrollToElement(el, 300);
       },
+      _drop(target) {
+        // 体验优化,异步执行下落动画
+        this.$nextTick(() => {
+          this.$refs.shopcart.drop(target);
+        });
+      },
       _initScroll() {
         this.menuScroll = new BScroll(this.$refs.menuWrapper, {
           click: true
         });
 
         this.foodsScroll = new BScroll(this.$refs.foodsWrapper, {
+          click: true,
           probeType: 3
         });
 
@@ -123,7 +147,8 @@
       }
     },
     components: {
-      shopcart
+      shopcart,
+      cartcontrol
     }
   };
 </script>
@@ -178,7 +203,7 @@
           display: table-cell
           width: 56px
           vertical-align: middle
-          border-lpx(rgba(7, 17, 27, 0.1))
+          border-1px(rgba(7, 17, 27, 0.1))
           font-size: 12px
     .foods-wrapper
       flex: 1
@@ -194,7 +219,7 @@
         display: flex
         margin: 18px
         padding-bottom: 18px
-        border-lpx(rgba(7, 17, 27, 0.1))
+        border-1px(rgba(7, 17, 27, 0.1))
         &:last-child
           border-none()
           margin-bottom: 0
@@ -230,4 +255,8 @@
               text-decoration: line-through
               font-size: 10px
               color: rgb(147, 153, 159)
+          .cartcontrol-wrapper
+            position: absolute
+            right: 0
+            bottom: 12px
 </style>
