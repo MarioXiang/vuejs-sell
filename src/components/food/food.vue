@@ -81,7 +81,7 @@
         desc: {
           all: '全部',
           positive: '推荐',
-          nagative: '吐槽'
+          negative: '吐槽'
         }
       };
     },
